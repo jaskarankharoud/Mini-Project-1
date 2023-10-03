@@ -1,34 +1,44 @@
-// import required modules
-const fs = require("fs");
-const path = require("path");
-const http = require("http");
+const http = require('http');
+const fs = require('fs').promises;
+const path = require('path');
 
-//read a file using file systems and path modules
-const filePath = path.join(__dirname, 'example.txt');
-let fileData = '';
-fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) throw err;
-    fileData = data;
-    console.log('File read successfully:', data);
-  });
-  
-  const server = http.createServer((req, res) => {
-    if (req.url === '/') {
-      res.end(`HTTP Server says: ${fileData}`);
-    } else if (req.url === '/api/users') {
-      const users = JSON.stringify([{ id: 1, name: 'John' }, { id: 2, name: 'Jane' }]);
+// Function to read user data from a file using Promises and async/await
+const readUserData = async () => {
+  try {
+    const data = await fs.readFile(path.join(__dirname, 'users.json'), 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    throw new Error('Error reading user data');
+  }
+};
+
+// Async function to handle HTTP requests
+const requestHandler = async (req, res) => {
+  try {
+    if (req.method === 'GET' && req.url === '/api/users') {
+      const users = await readUserData();
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(users);
+      res.end(JSON.stringify(users));
+    } else if (req.method === 'GET' && req.url === '/api/callback-example') {
+      // Example demonstrating the use of callbacks
+      setTimeout(() => {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('Callback example completed.');
+      }, 1000);
     } else {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('Not Found');
     }
-  });
-  
-  server.listen(3000, () => {
-    console.log('HTTP Server and REST API running on port 3000');
-  });
-  
-  const user = { name: 'Alice', age: 25 };
-const { name, age } = user;
-console.log(`Destructuring Example: ${name}, ${age}`);
+  } catch (error) {
+    res.writeHead(500, { 'Content-Type': 'text/plain' });
+    res.end('Internal Server Error');
+  }
+};
+
+// Create an HTTP server using the http module and async function
+const server = http.createServer(requestHandler);
+
+// Start the server on port 3000
+server.listen(3000, () => {
+  console.log('Server running on <http://localhost:3000/>');
+});
