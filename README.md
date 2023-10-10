@@ -1,2 +1,2 @@
-# Mini-Project-1
-this is my first project for this course
+# Mini-Project-5
+In this mini-project, we integrated a React frontend with a Node.js backend developed in Mini-Project 4. We implemented various React concepts, including JSX syntax, functional and class components, props, state management, event handling, conditional rendering, and rendering lists with keys. Additionally, we fetched and displayed data from the RESTful API.
