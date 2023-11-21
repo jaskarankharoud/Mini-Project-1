@@ -1,5 +1,5 @@
-# Mini-Project-7
+# Mini-Project-8
 
 # Overview
 
-This project is a web application built with React and Express, integrated with MongoDB for data storage. It allows users to manage workouts, add new exercises, and track their fitness progress.
+This is a simple Fitness Tracker app built with Node.js, Express, and MongoDB using Mongoose. The app allows users to track their workouts and stores the data in a MongoDB database.

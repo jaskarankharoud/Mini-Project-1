@@ -1,5 +1,4 @@
-const fs = require('fs');
- 
+import fs from 'fs';
 // Read a file
 fs.readFile('example.txt', 'utf8', (err, data) => {
     if (err) {
