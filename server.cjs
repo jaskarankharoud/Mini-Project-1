@@ -8,9 +8,13 @@ const fs = require('fs');
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.get('/', (req, res) => {
+  res.send('Welcome to the fitness tracker!');
+});
 
 // MongoDB and Mongoose setup
 mongoose.connect('mongodb://localhost:27017/fitnessTracker', { useNewUrlParser: true, useUnifiedTopology: true });
+
 
 // Updated Fitness Schema
 const fitnessSchema = new mongoose.Schema({
