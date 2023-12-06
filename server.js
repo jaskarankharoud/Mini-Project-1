@@ -1,56 +1,54 @@
-// server.js
-
 const express = require('express');
-const methodOverride = require('method-override');
-const { MongoClient } = require('mongodb');
+const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
+const cors = require('cors');
+const https = require('https');
+const fs = require('fs');
 
 const app = express();
-const port = 3000;
-
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.set('view engine', 'ejs');
-app.use(methodOverride('_method'));
+app.use(cors());
 
+// MongoDB and Mongoose setup
+mongoose.connect('mongodb://localhost:27017/fitnessTracker', { useNewUrlParser: true, useUnifiedTopology: true });
+
+// Updated Fitness Schema
+const fitnessSchema = new mongoose.Schema({
+  name: String,
+  type: String,
+  posted_by: mongoose.Schema.Types.ObjectId
+});
+
+const Fitness = mongoose.model('Fitness', fitnessSchema);
+
+// JWT Middleware
 app.use((req, res, next) => {
-    console.log(`${req.method} request for ${req.url}`);
+  if (req.headers && req.headers.authorization) {
+    jwt.verify(req.headers.authorization, 'SECRET', (err, decoded) => {
+      if (err) return res.status(401).send({ message: 'Unauthorized' });
+      req.user = decoded;
+      next();
+    });
+  } else {
     next();
+  }
 });
 
-let db;
-
-(async function () {
-    try {
-        const client = await MongoClient.connect("mongodb://localhost:27017/", { useUnifiedTopology: true });
-        console.log('Connected to MongoDB.');
-        db = client.db("fitnessTracker");
-
-    } catch (err) {
-        console.error('Error occurred while connecting to MongoDB:', err);
-    }
-})();
-
-app.get('/', (req, res) => {
-    res.send(`<button ><a href="/api/workouts""> workouts </a> </button> <button ><a href="/api/workouts/add""> add workouts </a> </button> `);
+// Updated Routes
+app.post('/workout', (req, res) => {
+  if (!req.user) return res.status(401).send({ message: 'Unauthorized' });
+  const newWorkout = new Fitness(req.body);
+  newWorkout.posted_by = req.user._id;
+  newWorkout.save();
+  res.json({ message: 'Workout added successfully' });
 });
 
-app.get('/api/workouts', async (req, res) => {
-    try {
-        const collection = db.collection('workouts');
-        const workouts = await collection.find({}).toArray();
-        res.render("workouts", { workouts });
-    } catch (err) {
-        console.log(err);
-        res.status(500).send('Error fetching from database');
-    }
-});
+// HTTPS Configuration
+const httpsOptions = {
+  key: fs.readFileSync('./key.pem'),
+  cert: fs.readFileSync('./cert.pem')
+};
 
-app.get('/api/workouts/add', (req, res) => {
-    res.render('workoutForm.ejs');
-});
-
-
-
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:27017/`);
+https.createServer(httpsOptions, app).listen(3000, () => {
+  console.log('HTTPS server running on <https://localhost:3000/>');
 });
