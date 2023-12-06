@@ -1,5 +1,11 @@
-# Mini-Project-8
+# Mini-Project 8
 
-# Overview
+## New Functionalities
 
-This is a simple Fitness Tracker app built with Node.js, Express, and MongoDB using Mongoose. The app allows users to track their workouts and stores the data in a MongoDB database.
+- Access Control
+- Updated Fitness Model
+- JWT Authorization
+- CORS Enabled
+- HTTPS Configuration
+
+
